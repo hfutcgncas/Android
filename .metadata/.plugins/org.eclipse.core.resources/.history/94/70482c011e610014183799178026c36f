@@ -1,0 +1,632 @@
+package com.cardboardptz;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.nio.channels.SocketChannel;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+
+import com.cardboardptz.MjpegInputStream;
+import com.cardboardptz.R;
+import com.cardboardptz.Gyroscope;
+import com.cardboardptz.MjpegView;
+import com.cardboardptz.util.SystemUiHider;
+
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+
+/**
+ * An example full-screen activity that shows and hides the system UI (i.e.
+ * status bar and navigation/system bar) with user interaction.
+ * 
+ * @see SystemUiHider
+ */
+public class FullscreenActivity extends Activity {
+	/**
+	 * Whether or not the system UI should be auto-hidden after
+	 * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
+	 */
+	private static final boolean AUTO_HIDE = true;
+
+	/**
+	 * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
+	 * user interaction before hiding the system UI.
+	 */
+	private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
+
+	/**
+	 * If set, will toggle the system UI visibility upon interaction. Otherwise,
+	 * will show the system UI visibility upon interaction.
+	 */
+	private static final boolean TOGGLE_ON_CLICK = true;
+
+	/**
+	 * The flags to pass to {@link SystemUiHider#getInstance}.
+	 */
+	private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
+
+	/**
+	 * The instance of the {@link SystemUiHider} for this activity.
+	 */
+	private SystemUiHider mSystemUiHider;
+	
+	//---------------------------------------------------------------------
+	private Button button;
+    private static final int REQUEST_SETTINGS = 0;
+    
+    private int width = 640;
+    private int height = 480;
+    
+    private int ip_ad1 = 192;
+    private int ip_ad2 = 168;
+    private int ip_ad3 = 2;
+    private int ip_ad4 = 1;
+    private int ip_port_Camleft  = 8080;
+    private int ip_port_CamRight = 8081;
+    private int ip_port_Gyro     = 8082;
+    
+    private boolean LCamera_Enable   = false;
+    private boolean RCamera_Enable   = false;
+    private boolean Gyroscope_Enable = false;
+    
+	private static final boolean DEBUG=false;
+    private static final String TAG = "MJPEG";
+    
+    private MjpegView mv = null;
+    private MjpegView mv1 = null;
+    private String URL_left;
+    private String URL_right;
+    
+    private Gyroscope mGyroscope = null;
+    
+    private String URL_GYRO  = null;
+    private int    port_GYRO = 0;
+    
+    private boolean suspending = false;
+    
+	final Handler handler = new Handler();
+	
+	
+//	private SocketChannel socketChannel;
+  //---------------------------------------------------------------------
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		
+		setContentView(R.layout.activity_fullscreen);
+
+		button = (Button)findViewById(R.id.dummy_button);
+		button.setOnClickListener(new ButtonListener());
+		
+		final View controlsView = findViewById(R.id.fullscreen_content_controls);
+		final View contentView = findViewById(R.id.fullscreen_content);
+
+		// Set up an instance of SystemUiHider to control the system UI for
+		// this activity.
+		mSystemUiHider = SystemUiHider.getInstance(this, contentView,
+				HIDER_FLAGS);
+		mSystemUiHider.setup();
+		mSystemUiHider
+				.setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
+					// Cached values.
+					int mControlsHeight;
+					int mShortAnimTime;
+
+					@Override
+					@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+					public void onVisibilityChange(boolean visible) {
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+							// If the ViewPropertyAnimator API is available
+							// (Honeycomb MR2 and later), use it to animate the
+							// in-layout UI controls at the bottom of the
+							// screen.
+							if (mControlsHeight == 0) {
+								mControlsHeight = controlsView.getHeight();
+							}
+							if (mShortAnimTime == 0) {
+								mShortAnimTime = getResources().getInteger(
+										android.R.integer.config_shortAnimTime);
+							}
+							controlsView
+									.animate()
+									.translationY(visible ? 0 : mControlsHeight)
+									.setDuration(mShortAnimTime);
+						} else {
+							// If the ViewPropertyAnimator APIs aren't
+							// available, simply show or hide the in-layout UI
+							// controls.
+							controlsView.setVisibility(visible ? View.VISIBLE
+									: View.GONE);
+						}
+
+						if (visible && AUTO_HIDE) {
+							// Schedule a hide().
+							delayedHide(AUTO_HIDE_DELAY_MILLIS);
+						}
+					}
+				});
+
+		// Set up the user interaction to manually show or hide the system UI.
+		contentView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				if (TOGGLE_ON_CLICK) {
+					mSystemUiHider.toggle();
+				} else {
+					mSystemUiHider.show();
+				}
+			}
+		});
+
+		// Upon interacting with UI controls, delay any scheduled hide()
+		// operations to prevent the jarring behavior of controls going away
+		// while interacting with the UI.
+		findViewById(R.id.dummy_button).setOnTouchListener(
+				mDelayHideTouchListener);
+		//以上为UI程序
+		
+		
+		//====================================================
+		SharedPreferences preferences = getSharedPreferences("SAVED_VALUES", MODE_PRIVATE);
+        width = preferences.getInt("width", width);
+        height = preferences.getInt("height", height);
+        ip_ad1 = preferences.getInt("ip_ad1", ip_ad1);
+        ip_ad2 = preferences.getInt("ip_ad2", ip_ad2);
+        ip_ad3 = preferences.getInt("ip_ad3", ip_ad3);
+        ip_ad4 = preferences.getInt("ip_ad4", ip_ad4);
+        ip_port_Camleft = preferences.getInt("ip_port_Camleft", ip_port_Camleft);
+        ip_port_CamRight = preferences.getInt("ip_port_CamRight", ip_port_CamRight);
+        ip_port_Gyro = preferences.getInt("ip_port_Gyro", ip_port_Gyro);
+        LCamera_Enable = preferences.getBoolean("LCamera_Enable", LCamera_Enable);
+        RCamera_Enable = preferences.getBoolean("LCamera_Enable", LCamera_Enable);
+        Gyroscope_Enable = preferences.getBoolean("Gyroscope_Enable", Gyroscope_Enable);
+        
+        StringBuilder sb  = new StringBuilder();
+        StringBuilder sb1 = new StringBuilder();
+        StringBuilder sb2 = new StringBuilder();   
+        
+        String s_http = "http://";
+        String s_dot = ".";
+        String s_colon = ":";
+        String s_slash = "/";
+        sb.append(s_http);
+        sb.append(ip_ad1);
+        sb.append(s_dot);
+        sb.append(ip_ad2);
+        sb.append(s_dot);
+        sb.append(ip_ad3);
+        sb.append(s_dot);
+        sb.append(ip_ad4);
+        sb.append(s_colon);
+        
+        sb1.append(sb);
+        sb1.append(ip_port_Camleft);
+        sb1.append(s_slash);
+        sb1.append("?action=stream");
+        URL_left = new String(sb1);
+        
+        sb2.append(sb);
+        sb2.append(ip_port_CamRight);
+        sb2.append(s_slash);
+        sb2.append("?action=stream");
+        URL_right = new String(sb2);
+        
+       /* if(LCamera_Enable){
+            mv = (MjpegView) findViewById(R.id.mv);   
+            if(mv != null){
+            	mv.setResolution(width, height);
+            }
+            new DoRead().execute(URL_left);
+        	
+        }   */
+        mv = (MjpegView) findViewById(R.id.mv);   
+        if(mv != null){
+        	mv.setResolution(width, height);
+        }
+        
+        
+       /* if(RCamera_Enable){
+            mv1 = (MjpegView) findViewById(R.id.mv1);   
+            if(mv1 != null){
+            	mv1.setResolution(width, height);
+            }    
+        //    new DoRead1().execute(URL_right);
+        }*/
+        
+        mv1 = (MjpegView) findViewById(R.id.mv1);   
+        if(mv1 != null){
+        	mv1.setResolution(width, height);
+        }  
+        
+        System.out.println("Begin #1");
+        new DoRead().execute(URL_left);
+        new DoRead1().execute(URL_right);
+        
+        //----------------------------------------------
+        StringBuilder sb3 = new StringBuilder();
+        sb3.append(s_http);
+        sb3.append(ip_ad1);
+        sb3.append(s_dot);
+        sb3.append(ip_ad2);
+        sb3.append(s_dot);
+        sb3.append(ip_ad3);
+        sb3.append(s_dot);
+        sb3.append(ip_ad4); 
+      /*  
+        if(Gyroscope_Enable){
+        	URL_GYRO  = new String(sb3);
+        	port_GYRO = ip_port_Gyro;
+        	mGyroscope = new Gyroscope(this);        
+        //	new StartGyro().execute(new String(sb3));
+        }
+        URL_GYRO  = new String(sb3);
+    	port_GYRO = ip_port_Gyro;
+    	mGyroscope = new Gyroscope(this);        
+    	new StartGyro().execute(new String(sb3));
+        */
+	}
+	
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    public void onResume() {
+    	if(DEBUG) Log.d(TAG,"onResume()");
+        super.onResume();
+        if(mv!=null){
+        	if(suspending){
+        		new DoRead().execute(URL_left);
+        		new DoRead1().execute(URL_right);
+        		suspending = false;
+        	}
+        }
+   //     if(mGyroscope!=null){
+   //     	mGyroscope.onStart();
+   //     }
+    }
+
+    public void onStart() {
+    	if(DEBUG) Log.d(TAG,"onStart()");
+        super.onStart();
+           
+ //       wakeLock.acquire(); 
+    }
+    public void onPause() {
+    	if(DEBUG) Log.d(TAG,"onPause()");
+        super.onPause();
+        if(mv!=null){
+        	if(mv.isStreaming()){
+		        mv.stopPlayback();
+		        suspending = true;
+        	}
+        }
+        if(mv1!=null){
+        	if(mv1.isStreaming()){
+		        mv1.stopPlayback();
+		        suspending = true;
+        	}
+       }
+ /*      if(mGyroscope!=null)
+       {
+    	   mGyroscope.onStop();
+       }*/
+    }
+    public void onStop() {
+    	if(DEBUG) Log.d(TAG,"onStop()");
+  //  	wakeLock.release();
+        super.onStop();
+    }
+
+    public void onDestroy() {
+    	if(DEBUG) Log.d(TAG,"onDestroy()");
+    	
+    	if(mv!=null){
+    		mv.freeCameraMemory();
+    	}
+    	if(mv1!=null){
+    		mv1.freeCameraMemory();
+    	}
+  //  	wakeLock.release();
+        super.onDestroy();
+    }
+    
+    
+		
+		
+		
+
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+
+		// Trigger the initial hide() shortly after the activity has been
+		// created, to briefly hint to the user that UI controls
+		// are available.
+		delayedHide(100);
+	}
+
+	/**
+	 * Touch listener to use for in-layout UI controls to delay hiding the
+	 * system UI. This is to prevent the jarring behavior of controls going away
+	 * while interacting with activity UI.
+	 */
+	View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+		@Override
+		public boolean onTouch(View view, MotionEvent motionEvent) {
+			if (AUTO_HIDE) {
+				delayedHide(AUTO_HIDE_DELAY_MILLIS);
+			}
+			return false;
+		}
+	};
+
+	Handler mHideHandler = new Handler();
+	Runnable mHideRunnable = new Runnable() {
+		@Override
+		public void run() {
+			mSystemUiHider.hide();
+		}
+	};
+
+	/**
+	 * Schedules a call to hide() in [delay] milliseconds, canceling any
+	 * previously scheduled calls.
+	 */
+	private void delayedHide(int delayMillis) {
+		mHideHandler.removeCallbacks(mHideRunnable);
+		mHideHandler.postDelayed(mHideRunnable, delayMillis);
+	}
+	
+	//用于设定参数===================================================
+
+ //   private String ip_command = "?action=stream";
+    
+    
+	class ButtonListener implements OnClickListener{
+
+		@Override
+		public void onClick(View arg0) {
+			// TODO Auto-generated method stub
+			Intent settings_intent = new Intent(FullscreenActivity.this, SettingsActivity.class);
+			settings_intent.putExtra("width", width);
+			settings_intent.putExtra("height", height);
+			settings_intent.putExtra("ip_ad1", ip_ad1);
+			settings_intent.putExtra("ip_ad2", ip_ad2);
+			settings_intent.putExtra("ip_ad3", ip_ad3);
+			settings_intent.putExtra("ip_ad4", ip_ad4);
+			settings_intent.putExtra("ip_port_Camleft", ip_port_Camleft);
+			settings_intent.putExtra("ip_port_CamRight", ip_port_CamRight);
+			settings_intent.putExtra("ip_port_Gyro", ip_port_Gyro);
+			
+			settings_intent.putExtra("LCamera_Enable", LCamera_Enable);
+			settings_intent.putExtra("RCamera_Enable", RCamera_Enable);
+			settings_intent.putExtra("Gyroscope_Enable", Gyroscope_Enable);
+			
+			startActivityForResult(settings_intent, REQUEST_SETTINGS);
+			
+
+		}
+		
+	}
+	
+	//===============================================================
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	switch (requestCode) {
+    		case REQUEST_SETTINGS:
+    			if (resultCode == Activity.RESULT_OK) {
+    				width = data.getIntExtra("width", width);
+    				height = data.getIntExtra("height", height);
+    				ip_ad1 = data.getIntExtra("ip_ad1", ip_ad1);
+    				ip_ad2 = data.getIntExtra("ip_ad2", ip_ad2);
+    				ip_ad3 = data.getIntExtra("ip_ad3", ip_ad3);
+    				ip_ad4 = data.getIntExtra("ip_ad4", ip_ad4);
+    				ip_port_Camleft = data.getIntExtra("ip_port_Camleft", ip_port_Camleft);
+    				ip_port_CamRight = data.getIntExtra("ip_port_CamRight", ip_port_CamRight);
+    				ip_port_Gyro  = data.getIntExtra("ip_port_Gyro", ip_port_Gyro);
+    				LCamera_Enable = data.getBooleanExtra("LCamera_Enable", LCamera_Enable);
+    				RCamera_Enable = data.getBooleanExtra("RCamera_Enable", RCamera_Enable);
+    				Gyroscope_Enable = data.getBooleanExtra("Gyroscope_Enable", Gyroscope_Enable);
+    				
+
+    		/*		if(mv!=null){
+    					mv.setResolution(width, height);
+    				}
+    				if(mv1!=null){
+    					mv1.setResolution(width, height);
+    				}*/
+    				
+    				SharedPreferences preferences = getSharedPreferences("SAVED_VALUES", MODE_PRIVATE);
+    				SharedPreferences.Editor editor = preferences.edit();
+    				editor.putInt("width", width);
+    				editor.putInt("height", height);
+    				editor.putInt("ip_ad1", ip_ad1);
+    				editor.putInt("ip_ad2", ip_ad2);
+    				editor.putInt("ip_ad3", ip_ad3);
+    				editor.putInt("ip_ad4", ip_ad4);
+    				editor.putInt("ip_port_Camleft", ip_port_Camleft);
+    				editor.putInt("ip_port_CamRight", ip_port_CamRight);
+    				editor.putInt("ip_port_Gyro", ip_port_Gyro);
+    				editor.putBoolean("LCamera_Enable", LCamera_Enable);
+    				editor.putBoolean("RCamera_Enable", RCamera_Enable);
+    				editor.putBoolean("Gyroscope_Enable", Gyroscope_Enable);
+
+    				editor.commit();
+
+    				new RestartApp().execute();
+    			}
+    			break;
+    	}
+    }
+	public class RestartApp extends AsyncTask<Void, Void, Void> {
+        protected Void doInBackground(Void... v) {
+        	FullscreenActivity.this.finish();
+            return null;
+        }
+
+        protected void onPostExecute(Void v) {
+        	startActivity((new Intent(FullscreenActivity.this, FullscreenActivity.class)));
+        }
+    }
+	//===============================================================
+	
+	
+	 public class DoRead extends AsyncTask<String, Void, MjpegInputStream> {
+	        protected MjpegInputStream doInBackground(String... url) {
+	            //TODO: if camera has authentication deal with it and don't just not work
+	            HttpResponse res = null;         
+	            DefaultHttpClient httpclient = new DefaultHttpClient(); 
+	            HttpParams httpParams = httpclient.getParams();
+	            HttpConnectionParams.setConnectionTimeout(httpParams, 5*1000);
+	            HttpConnectionParams.setSoTimeout(httpParams, 5*1000);
+	            if(DEBUG) Log.d(TAG, "1. Sending http request");
+	            System.out.println("Begin #2");
+	            try {
+	            	System.out.println("Begin #3");
+	                res = httpclient.execute(new HttpGet(URI.create(url[0])));
+	                if(DEBUG) Log.d(TAG, "2. Request finished, status = " + res.getStatusLine().getStatusCode());
+	                if(res.getStatusLine().getStatusCode()==401){
+	                    //You must turn off camera User Access Control before this will work
+	                    return null;
+	                }
+	                System.out.println("Begin #4");
+	             
+	                return new MjpegInputStream(res.getEntity().getContent());  
+	            } catch (ClientProtocolException e) {
+	            	if(DEBUG){
+		                e.printStackTrace();
+		                Log.d(TAG, "Request failed-ClientProtocolException", e);
+	            	}
+	                //Error connecting to camera
+	            } catch (IOException e) {
+	            	if(DEBUG){
+		                e.printStackTrace();
+		                Log.d(TAG, "Request failed-IOException", e);
+	            	}
+	                //Error connecting to camera
+	            }
+	            return null;
+	        }
+
+	        protected void onPostExecute(MjpegInputStream result) {
+	        	System.out.println("Begin #5");
+	            mv.setSource(result);
+	            if(result!=null){
+	            	result.setSkip(1);
+	            //	setTitle(R.string.app_name);
+	            	System.out.println("Begin #6");
+	            }else{
+	            //	setTitle(R.string.title_disconnected);
+	            	System.out.println("Begin #7");
+	            }
+	            mv.setDisplayMode(MjpegView.SIZE_BEST_FIT);
+	            System.out.println("Begin #8");
+	            mv.showFps(true);
+	      /*      mv.mIn.dispEnable = true;  */
+	        }
+	    }
+	    
+	    public class DoRead1 extends AsyncTask<String, Void, MjpegInputStream> {
+	        protected MjpegInputStream doInBackground(String... url1) {
+	            //TODO: if camera has authentication deal with it and don't just not work
+	            HttpResponse res = null;         
+	            DefaultHttpClient httpclient = new DefaultHttpClient(); 
+	            HttpParams httpParams = httpclient.getParams();
+	            HttpConnectionParams.setConnectionTimeout(httpParams, 5*1000);
+	            HttpConnectionParams.setSoTimeout(httpParams, 5*1000);
+	            if(DEBUG) Log.d(TAG, "1. Sending http request");
+	            try {
+	                res = httpclient.execute(new HttpGet(URI.create(url1[0])));
+	                if(DEBUG) Log.d(TAG, "2. Request finished, status = " + res.getStatusLine().getStatusCode());
+	                if(res.getStatusLine().getStatusCode()==401){
+	                    //You must turn off camera User Access Control before this will work
+	                    return null;
+	                }
+	                return new MjpegInputStream(res.getEntity().getContent());  
+	            } catch (ClientProtocolException e) {
+	            	if(DEBUG){
+		                e.printStackTrace();
+		                Log.d(TAG, "Request failed-ClientProtocolException", e);
+	            	}
+	                //Error connecting to camera
+	            } catch (IOException e) {
+	            	if(DEBUG){
+		                e.printStackTrace();
+		                Log.d(TAG, "Request failed-IOException", e);
+	            	}
+	                //Error connecting to camera
+	            }
+	            return null;
+	        }
+
+	        protected void onPostExecute(MjpegInputStream result) {
+	            mv1.setSource(result);
+	            if(result!=null){
+	            	result.setSkip(1);
+	            	//setTitle(R.string.app_name);
+	            }else{
+	            	//setTitle(R.string.title_disconnected);
+	            }
+	            mv1.setDisplayMode(MjpegView.SIZE_BEST_FIT);
+	            mv1.showFps(true);
+	            //mv1.mIn.dispEnable = true;
+	            
+	        }
+	    }
+	    
+	    
+	    //----------------------
+	    public class StartGyro extends AsyncTask<String , Void, SocketChannel>{
+
+			
+
+			@Override
+			protected SocketChannel doInBackground(String... url) {
+				// TODO Auto-generated method stub
+			//	Socket socket = new Socket();  
+				
+				System.out.println("In");
+				SocketChannel socketChannel = null;
+                try {
+                /*	System.out.println("Try");
+					socket.connect(new InetSocketAddress("159.226.176.125", 5555));*/
+                    socketChannel  = SocketChannel.open(); //查看本机IP,每次开机都不同  
+                	socketChannel.connect( new InetSocketAddress(URL_GYRO, port_GYRO ));
+                    socketChannel.configureBlocking(false);
+              /*      while(true){
+                    	socketChannel.write(ByteBuffer.wrap("asdasd".getBytes()));
+                        
+                    }*/
+                                                     	                
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return socketChannel;
+			}
+			
+			protected void onPostExecute(SocketChannel result) {
+				mGyroscope.SetsockerChannel(result);
+				mGyroscope.onStart();
+			}
+	    	
+	    } 
+	    
+	
+
+}

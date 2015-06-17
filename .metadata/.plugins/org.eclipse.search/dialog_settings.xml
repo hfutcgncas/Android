@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="">
+		<item value="1000" key="org.eclipse.search.resultpage.limit"/>
+	</section>
+	<section name="">
+		<item value="TRUE" key="org.eclipse.jdt.search.resultpage.limit_enabled"/>
+		<item value="1000" key="org.eclipse.jdt.search.resultpage.limit"/>
+	</section>
+	<section name="org.eclipse.jdt.ui.JavaSearchResultPage">
+		<item value="TRUE" key="org.eclipse.jdt.search.resultpage.limit_enabled"/>
+		<item value="1000" key="org.eclipse.jdt.search.resultpage.limit"/>
+	</section>
+	<section name="DialogBounds_SearchDialog">
+		<item value="559" key="DIALOG_WIDTH"/>
+		<item value="117" key="DIALOG_Y_ORIGIN"/>
+		<item value="365" key="DIALOG_X_ORIGIN"/>
+		<item value="456" key="DIALOG_HEIGHT"/>
+		<item value="1|微软雅黑|9.0|0|WINDOWS|1|-12|0|0|0|400|0|0|0|1|0|0|0|0|微软雅黑" key="DIALOG_FONT_NAME"/>
+	</section>
+	<section name="Search">
+		<list key="Search.processedPageIds">
+			<item value="org.eclipse.search.internal.ui.text.TextSearchPage"/>
+			<item value="org.eclipse.cdt.ui.pdomSearchPage"/>
+			<item value="org.eclipse.egit.ui.commitSearchPage"/>
+			<item value="org.eclipse.jdt.ui.JavaSearchPage"/>
+		</list>
+		<list key="Search.enabledPageIds">
+			<item value="org.eclipse.search.internal.ui.text.TextSearchPage"/>
+			<item value="org.eclipse.cdt.ui.pdomSearchPage"/>
+			<item value="org.eclipse.egit.ui.commitSearchPage"/>
+			<item value="org.eclipse.jdt.ui.JavaSearchPage"/>
+		</list>
+	</section>
+	<section name="org.eclipse.search.text.FileSearchResultPage">
+		<item value="1000" key="org.eclipse.search.resultpage.limit"/>
+	</section>
+	<section name="TextSearchPage">
+		<item value="false" key="CASE_SENSITIVE"/>
+		<item value="false" key="REG_EX_SEARCH"/>
+		<item value="false" key="SEARCH_DERIVED"/>
+		<item value="3" key="HISTORY_SIZE"/>
+		<section name="HISTORY2">
+			<item value="false" key="isRegExSearch"/>
+			<item value="FullscreenTheme" key="textPattern"/>
+			<item value="0" key="scope"/>
+			<item value="true" key="ignoreCase"/>
+			<list key="fileNamePatterns">
+				<item value="*.class without source"/>
+				<item value="*.prefs"/>
+				<item value="*.so"/>
+				<item value="*.C"/>
+				<item value="*.ent"/>
+				<item value="*.wsdl"/>
+				<item value="*.lib"/>
+				<item value="*.shtml"/>
+				<item value="*.xsl"/>
+				<item value="*.ecore"/>
+				<item value="*.xsd"/>
+				<item value="*.doc"/>
+				<item value="*.cc"/>
+				<item value="*.trace"/>
+				<item value="*.emof"/>
+				<item value="*.dylib"/>
+				<item value="*.obj"/>
+				<item value="*.txt"/>
+				<item value="*.class"/>
+				<item value="*.mod"/>
+				<item value="*.properties"/>
+				<item value="*.out"/>
+				<item value="*.xslt"/>
+				<item value="*.dll"/>
+				<item value="*.asm"/>
+				<item value="*.jpage"/>
+				<item value="*.e4xmi"/>
+				<item value="*.dtd"/>
+				<item value="*.ant"/>
+				<item value="*.h"/>
+				<item value="*.cxx"/>
+				<item value="*.htm"/>
+				<item value="*.html"/>
+				<item value="*.exsd"/>
+				<item value="*.gltrace"/>
+				<item value="*.xml"/>
+				<item value="*.xmi"/>
+				<item value="*.exe"/>
+				<item value="*.macrodef"/>
+				<item value="*.o"/>
+				<item value="*.uix"/>
+				<item value="*.hh"/>
+				<item value="*.log"/>
+				<item value="*.cpp"/>
+				<item value="*.elf"/>
+				<item value="*.hxx"/>
+				<item value="*.a"/>
+				<item value="*.9.png"/>
+				<item value="*.c"/>
+				<item value="*.java"/>
+				<item value="*.docx"/>
+				<item value="*.mk"/>
+				<item value="*.hpp"/>
+				<item value="*.S"/>
+				<item value="*.jardesc"/>
+				<item value="*.c++"/>
+			</list>
+			<list key="workingSets">
+			</list>
+		</section>
+		<section name="EXTENSIONS">
+			<item value="*.9.png, *.C, *.S, *.a, *.ant, *.asm, *.c, *.c++, *.cc, *.class, *.class without source, *.cpp, *.cxx, *.dll, *.doc, *.docx, *.dtd, *.dylib, *.e4xmi, *.ecore, *.elf, *.emof, *.ent, *.exe, *.exsd, *.gltrace, *.h, *.hh, *.hpp, *.htm, *.html, *.hxx, *.jardesc, *.java, *.jpage, *.lib, *.log, *.macrodef, *.mk, *.mod, *.o, *.obj, *.out, *.prefs, *.properties, *.shtml, *.so, *.trace, *.txt, *.uix, *.wsdl, *.xmi, *.xml, *.xsd, *.xsl, *.xslt" key="0"/>
+		</section>
+		<section name="HISTORY0">
+			<item value="false" key="isRegExSearch"/>
+			<item value="SettingsActivity" key="textPattern"/>
+			<item value="0" key="scope"/>
+			<item value="true" key="ignoreCase"/>
+			<list key="fileNamePatterns">
+				<item value="*.class without source"/>
+				<item value="*.prefs"/>
+				<item value="*.so"/>
+				<item value="*.C"/>
+				<item value="*.ent"/>
+				<item value="*.wsdl"/>
+				<item value="*.lib"/>
+				<item value="*.shtml"/>
+				<item value="*.xsl"/>
+				<item value="*.ecore"/>
+				<item value="*.xsd"/>
+				<item value="*.doc"/>
+				<item value="*.cc"/>
+				<item value="*.trace"/>
+				<item value="*.emof"/>
+				<item value="*.dylib"/>
+				<item value="*.obj"/>
+				<item value="*.txt"/>
+				<item value="*.class"/>
+				<item value="*.mod"/>
+				<item value="*.properties"/>
+				<item value="*.out"/>
+				<item value="*.xslt"/>
+				<item value="*.dll"/>
+				<item value="*.asm"/>
+				<item value="*.jpage"/>
+				<item value="*.e4xmi"/>
+				<item value="*.dtd"/>
+				<item value="*.ant"/>
+				<item value="*.h"/>
+				<item value="*.cxx"/>
+				<item value="*.htm"/>
+				<item value="*.html"/>
+				<item value="*.exsd"/>
+				<item value="*.gltrace"/>
+				<item value="*.xml"/>
+				<item value="*.xmi"/>
+				<item value="*.exe"/>
+				<item value="*.macrodef"/>
+				<item value="*.o"/>
+				<item value="*.uix"/>
+				<item value="*.hh"/>
+				<item value="*.log"/>
+				<item value="*.cpp"/>
+				<item value="*.elf"/>
+				<item value="*.hxx"/>
+				<item value="*.a"/>
+				<item value="*.9.png"/>
+				<item value="*.c"/>
+				<item value="*.java"/>
+				<item value="*.docx"/>
+				<item value="*.mk"/>
+				<item value="*.hpp"/>
+				<item value="*.S"/>
+				<item value="*.jardesc"/>
+				<item value="*.c++"/>
+			</list>
+			<list key="workingSets">
+			</list>
+		</section>
+		<section name="HISTORY1">
+			<item value="false" key="isRegExSearch"/>
+			<item value="android:theme" key="textPattern"/>
+			<item value="0" key="scope"/>
+			<item value="true" key="ignoreCase"/>
+			<list key="fileNamePatterns">
+				<item value="*.9.png"/>
+				<item value="*.C"/>
+				<item value="*.S"/>
+				<item value="*.a"/>
+				<item value="*.ant"/>
+				<item value="*.asm"/>
+				<item value="*.c"/>
+				<item value="*.c++"/>
+				<item value="*.cc"/>
+				<item value="*.class"/>
+				<item value="*.class without source"/>
+				<item value="*.cpp"/>
+				<item value="*.cxx"/>
+				<item value="*.dll"/>
+				<item value="*.doc"/>
+				<item value="*.docx"/>
+				<item value="*.dtd"/>
+				<item value="*.dylib"/>
+				<item value="*.e4xmi"/>
+				<item value="*.ecore"/>
+				<item value="*.elf"/>
+				<item value="*.emof"/>
+				<item value="*.ent"/>
+				<item value="*.exe"/>
+				<item value="*.exsd"/>
+				<item value="*.gltrace"/>
+				<item value="*.h"/>
+				<item value="*.hh"/>
+				<item value="*.hpp"/>
+				<item value="*.htm"/>
+				<item value="*.html"/>
+				<item value="*.hxx"/>
+				<item value="*.jardesc"/>
+				<item value="*.java"/>
+				<item value="*.jpage"/>
+				<item value="*.lib"/>
+				<item value="*.log"/>
+				<item value="*.macrodef"/>
+				<item value="*.mk"/>
+				<item value="*.mod"/>
+				<item value="*.o"/>
+				<item value="*.obj"/>
+				<item value="*.out"/>
+				<item value="*.prefs"/>
+				<item value="*.properties"/>
+				<item value="*.shtml"/>
+				<item value="*.so"/>
+				<item value="*.trace"/>
+				<item value="*.txt"/>
+				<item value="*.uix"/>
+				<item value="*.wsdl"/>
+				<item value="*.xmi"/>
+				<item value="*.xml"/>
+				<item value="*.xsd"/>
+				<item value="*.xsl"/>
+				<item value="*.xslt"/>
+			</list>
+			<list key="workingSets">
+			</list>
+		</section>
+	</section>
+	<section name="SearchDialog.ScopePart">
+		<item value="0" key="scope"/>
+	</section>
+</section>

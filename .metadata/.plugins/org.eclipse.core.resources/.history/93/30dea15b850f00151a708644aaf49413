@@ -1,0 +1,16 @@
+package com.Liu.toycarv3;
+
+import java.nio.channels.SocketChannel;
+
+public class SocketClient {
+	
+	private SocketChannel socketChannel = null;
+	private String sendbuf;
+	
+	public SocketChannel SetsockerChannel(SocketChannel in)
+	{
+		socketChannel = in;
+		return socketChannel;
+	}
+
+}

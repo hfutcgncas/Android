@@ -1,0 +1,110 @@
+package com.Liu.toycarv3;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
+import java.util.Timer;
+
+import com.cardboardptz.Gyroscope.GyroCommThread;
+import com.cardboardptz.Gyroscope.calculateFusedOrientationTask;
+
+public class SocketClient {
+	//=================================================
+	private SocketChannel socketChannel = null;
+	private String sendbuf;
+	//=================================================
+	public double Longitude;
+	public double Latitude;
+	
+	//=================================================
+	public boolean mRun;
+	private Timer fuseTimer = null;
+	//=================================================	
+	
+	public SocketChannel SetsockerChannel(SocketChannel in)
+	{
+		socketChannel = in;
+		return socketChannel;
+	}
+	
+	protected void finalize()
+    {
+		try {
+			if(socketChannel.isOpen())
+			socketChannel.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}   		// add something....................
+    }
+	
+	//==============================================================
+	//=========================================================
+		public class SocketThread extends Thread {
+			public void run() {
+				while(mRun){
+			        StringBuilder sbcmd = new StringBuilder();
+			        sbcmd.append("X");
+			        sbcmd.append(""+ String.valueOf(Longitude));
+			        sbcmd.append("Y");
+			        sbcmd.append(""+ String.valueOf(Latitude));
+			        sbcmd.append("\r\n");
+			        
+			        System.out.println("again:"+new String(sbcmd));
+			        byte[] sendBytes = new String(sbcmd).getBytes();
+			        try {
+						socketChannel.write(ByteBuffer.wrap(sendBytes));				
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+			        
+			        try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+			
+		}
+		
+		private SocketThread thread;
+		
+		public void onStart(){
+			if(fuseTimer == null)
+			{
+				fuseTimer = new Timer();
+			}
+			fuseTimer.scheduleAtFixedRate(new calculateFusedOrientationTask(),
+	                1000, TIME_CONSTANT);
+			
+			mRun = true;
+			if(thread==null){
+	        	thread = new SocketThread();
+	        }
+	        thread.start();    	
+		}
+		public void onStop(){
+			if(fuseTimer!=null)
+			{
+				fuseTimer.cancel();
+			}
+			fuseTimer = null; //
+			mRun = false;
+
+			if(thread!=null){
+	        	boolean retry = true;
+		        while(retry) {
+		            try {
+		                thread.join();
+		                retry = false;
+		            } catch (InterruptedException e) {}
+		        }
+		        thread = null;
+	        }
+		}
+
+
+}

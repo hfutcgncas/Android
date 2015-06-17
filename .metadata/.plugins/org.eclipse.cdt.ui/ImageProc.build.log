@@ -1,0 +1,11 @@
+
+**** Build of configuration Default for project ImageProc ****
+
+make all 
+
+Cannot run program "make": Launching failed
+Error: Program "make" is not found in PATH
+
+PATH=[C:/Program Files/Java/jre7/bin/client;C:/Program Files/Java/jre7/bin;C:/Program Files/Java/jre7/lib/i386;D:\Program Files\Python27\Lib\site-packages\PyQt4;D:\Program Files\Python34\Lib\site-packages\PyQt4;C:\Program Files\Common Files\NetSarang;C:\Program Files\Common Files\Intel\Shared Libraries\redist\ia32\compiler;d:\program files\imagemagick-6.2.5-q16;D:\Program Files\Perl\bin\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\MySQL\MySQL Server 5.1\bin;C:\Program Files\Microsoft SQL Server\100\Tools\Binn\;C:\Program Files\Microsoft SQL Server\100\DTS\Binn\;D:\Program Files\CTEX\UserData\miktex\bin;D:\Program Files\CTEX\MiKTeX\miktex\bin;D:\Program Files\CTEX\CTeX\ctex\bin;D:\Program Files\CTEX\CTeX\cct\bin;D:\Program Files\CTEX\CTeX\ty\bin;D:\Program Files\CTEX\Ghostscript\gs9.05\bin;D:\Program Files\CTEX\GSview\gsview;D:\Program Files\CTEX\WinEdt;D:\Program Files\andirod\adt-bundle-windows-x86-20131030\adt-bundle-windows-x86-20131030\sdk\tools;D:\Program Files\andirod\adt-bundle-windows-x86-20131030\adt-bundle-windows-x86-20131030\sdk\;D:\Program Files\andirod\adt-bundle-windows-x86-20131030\adt-bundle-windows-x86-20131030\sdk\tools;D:\Program Files\MATLAB\runtime\win32;D:\Program Files\MATLAB\bin;D:\Program Files\MATLAB\polyspace\bin;d:\Program Files\Tesseract-OCR;D:\Python34;C:\Program Files\Common Files\Ulead Systems\MPEG;C:\Program Files\QuickTime\QTSystem\;d:\Program Files\ATMEL Corporation\AT91-ISP v1.13\Library\;d:\Program Files\ATMEL Corporation\AT91-ISP v1.13\sam-ba 2.9;C:\Users\lenovo\AppData\Roaming\npm;D:\Program Files\andirod\adt-bundle-windows-x86-20131030\adt-bundle-windows-x86-20131030\eclipse;]
+
+**** Build Finished ****

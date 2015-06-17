@@ -1,0 +1,183 @@
+package com.Liu.toycarv3;
+
+
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.channels.SocketChannel;
+import java.util.Timer;
+import java.util.TimerTask;
+
+
+
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.util.Log;
+import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.TextView.BufferType;
+
+public class ToyCarActivity extends Activity {
+	
+	//===================================
+	protected static final int UPDATE_TEXT = 1;
+	public String URL_GYRO = "192.168.0.180";
+	public int port_GYRO = 1234;
+	//private double Longitude;
+	//private double Latitude;
+	//===================================
+	TextView mdisptxt;
+	Button SetButton;
+	
+	EditText ip1_input;
+	EditText ip2_input;
+	EditText ip3_input;
+	EditText ip4_input;
+	EditText port_input;
+	
+	private String mDispstring;
+	
+	//===================================
+	
+	//===================================
+	//gps 服务
+	private cGPS gps = null;
+	private SocketClient mSocketClient = null;
+	//===================================
+	//UI刷新定时器
+	private Timer mTimer = null;
+	private Handler mHandler = null;
+	private TimerTask mTimerTask = null;
+	//===================================
+	@SuppressLint("HandlerLeak")
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_toy_car);
+		
+		
+		//================================================
+		gps = new cGPS(this);
+		mSocketClient = new SocketClient();
+		
+		
+		//================================================
+		mdisptxt = (TextView)findViewById(R.id.DispTxt);
+		
+		ip1_input = (EditText)findViewById(R.id.editText_ip1);
+		ip2_input = (EditText)findViewById(R.id.editText_ip2);
+		ip3_input = (EditText)findViewById(R.id.editText_ip3);
+		ip4_input = (EditText)findViewById(R.id.editText_ip4);
+		port_input = (EditText)findViewById(R.id.editText_port);
+		
+		SetButton  = (Button)findViewById(R.id.button_Set);
+		SetButton.setOnClickListener(
+	     		new View.OnClickListener(){
+	     			public void onClick(View view){      
+	     				String IPtemp = new String("123");
+	     				
+	     				System.out.println(IPtemp);
+	     				
+	     				IPtemp = ip1_input.getText().toString();
+	     				IPtemp += ip2_input.getText().toString();
+	     				IPtemp += ip3_input.getText().toString();
+	     				IPtemp += ip4_input.getText().toString();
+	     				
+	     				System.out.println(IPtemp);
+	     			
+	     				port_GYRO = Integer.valueOf(port_input.getText().toString()).intValue();
+	     				
+	     				
+	     				
+	     			}
+	     		}        		
+	     );
+		
+		//================================================
+		new StartSocket().execute("123");
+		//================================================
+		mTimer = new Timer();
+		
+		mHandler = new Handler(){
+			@Override
+			public void handleMessage(Message msg) {
+				switch (msg.what){
+					case UPDATE_TEXT:
+						if(gps.statue == "OK"){
+							mDispstring = "当前位置\n";
+							mDispstring += "经度："+ String.valueOf(gps.Longitude) + "\n";
+							mDispstring += "纬度："+ String.valueOf(gps.Latitude) + "\n";						
+							
+						}
+						else
+						{
+							mDispstring = "定位失败\n";
+						}
+						mdisptxt.setText(mDispstring);
+						mSocketClient.Longitude = gps.Longitude;
+						mSocketClient.Latitude  = gps.Latitude;
+						break;
+				}
+			}
+		};
+		
+		mTimerTask = new TimerTask() {
+
+			@Override
+			public void run() {
+				Log.d("ToyCayV3", "timer");
+				mHandler.sendEmptyMessage(UPDATE_TEXT);
+				}
+		};
+			
+		mTimer.schedule(mTimerTask, 1000, 50);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.toy_car, menu);
+		return true;
+	}
+	
+	
+	//====================================================
+	//建立网络
+	public class StartSocket extends AsyncTask<String , Void, SocketChannel>{
+
+		@Override
+		protected SocketChannel doInBackground(String... url) {
+			SocketChannel socketChannel = null;
+            try {
+                socketChannel  = SocketChannel.open(); //查看本机IP,每次开机都不同  
+            	socketChannel.connect( new InetSocketAddress(URL_GYRO, port_GYRO ));
+            	socketChannel.configureBlocking(true);
+            	
+               /* while(true){
+                	socketChannel.write(ByteBuffer.wrap("asdasd".getBytes()));          
+                }*/
+                                                 	                
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return socketChannel;
+		}
+		
+		protected void onPostExecute(SocketChannel result) {
+			
+			
+			mSocketClient.SetsockerChannel(result);
+			mSocketClient.onStart();
+
+		}
+	}
+
+}

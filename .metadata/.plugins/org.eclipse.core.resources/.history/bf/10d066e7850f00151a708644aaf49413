@@ -1,0 +1,28 @@
+package com.Liu.toycarv3;
+
+import java.io.IOException;
+import java.nio.channels.SocketChannel;
+
+public class SocketClient {
+	
+	private SocketChannel socketChannel = null;
+	private String sendbuf;
+	
+	public SocketChannel SetsockerChannel(SocketChannel in)
+	{
+		socketChannel = in;
+		return socketChannel;
+	}
+	
+	protected void finalize()
+    {
+		try {
+			if(socketChannel.isOpen())
+			socketChannel.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}   		// add something....................
+    }
+
+}
